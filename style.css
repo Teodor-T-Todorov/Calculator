@@ -33,10 +33,12 @@ body{
     flex-direction: column;
     align-items: flex-end;
     justify-content: space-around;
-    font-size: 5.5em;
+    font-size: 3.5em;
     padding: 5px;
     margin: 5px;
     background-color: #e5e0e0;
+    white-space:normal;
+    word-break: break-all;
 }
 
 button{
@@ -49,11 +51,11 @@ button{
     color: white;
 }
 
-button[value = C] {
+button[value = C], button[value = Del] {
     color: #ec4747;
 }
 
-button[value = C]:hover{
+button[value = C]:hover, button[value = Del]:hover{
     background-color:#ec4747;
     color: white;
 }
