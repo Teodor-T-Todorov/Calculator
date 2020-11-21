@@ -60,11 +60,11 @@ button[value = C]:hover, button[value = Del]:hover{
     color: white;
 }
 
-.operator {
+.operator, .brackets {
     color: #37e46b;
 }
 
-.operator:hover{
+.operator:hover, .brackets:hover{
     background-color: #37e46b;
     color: white;
 }

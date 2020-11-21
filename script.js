@@ -1,3 +1,89 @@
+
+const buttons = document.querySelectorAll('button');
+
+let equation = [];
+let openingBracketCounter = 0;
+let operators = ['+', '-', '*', '/', '('];
+
+buttons.forEach((button => {
+    button.addEventListener('click', () => {
+
+        switch(button.value)
+        {
+            case '=':
+                if(equation.length == 0)
+                {
+                    return;
+                }
+                display.textContent = calculate(equation);           
+                return;
+
+            case 'C':
+                display.textContent = '';
+                equation = [];
+                openingBracketCounter = 0;
+                return;
+
+            case 'Del':
+                display.textContent = display.textContent.slice(0, -1);
+                equation.pop();
+                return;
+
+            case '()':
+                if(equation[equation.length - 1] != '(' && openingBracketCounter != 0)
+                {
+                    display.textContent += ')';
+                    equation.push(')');
+                    openingBracketCounter--;
+                    return;
+                }
+
+                display.textContent += '(';
+                equation.push('(');
+                openingBracketCounter++;
+                return;
+            
+            case '.':
+                display.textContent += '.';
+                equation.push(button.value);
+                
+        }
+
+        if(button.className == 'num') // Adding numbers to the caluclator
+        {
+            display.textContent += button.value;
+            equation.push(button.value);
+        }
+        
+        else if(button.className == 'operator')
+        {
+            if(equation.length == 0 ) // Can't start calculating with a operator
+            {
+                return;
+            }
+
+            if(operators.includes(equation[equation.length-1]) == true) // Changing the current operator
+            {
+                if(equation[equation.length - 1] == '(')
+                {
+                    return;
+                }
+                equation[equation.length-1] = button.value;
+
+                display.textContent = display.textContent.slice(0, -1);
+                display.textContent += button.value;
+                return;
+            }
+
+            display.textContent += button.value;
+            equation.push(button.value);
+        }
+        
+        console.log(equation)
+    })
+    
+}))
+
 function operate(operation,firstOperand, secondOperand)
 {
     let result;
@@ -19,7 +105,7 @@ function operate(operation,firstOperand, secondOperand)
           break;
 
       case '/':
-          result = firstOperand/secondOperand.toPrecision(3);
+          result = (firstOperand/secondOperand).toFixed(2);
           break;
         
       case '%':
@@ -50,191 +136,141 @@ function concatNumbers(equation)
     return equation;
 }
 
+function isNumeric(num) // Check if current element is a number
+{
+    return !isNaN(num);
+}
+
 function calculate(equation)
 {
     equation = concatNumbers(equation);
-
 
     let firstOperand;
     let secondOperand;
     let operation;
 
-    let firstOperandIndex;
-    let secondOperandIndex; // for brackets
+    let operationIndex;
+    let closingBracketIndex; // for brackets
 
     let partialEquation;
 
-    if(equation.length == 1 && typeof Number(equation[0]) == 'number') // for future change
+    if(equation.length == 1)
     {
         return equation[0];
+    }
+
+    let openingBracketCounter = 0;
+    let closingBracketCounter = 0
+
+    for(let i = 0; i < equation.length; i++)
+    {
+        if(equation[i] == '(')
+        {
+            openingBracketCounter++;
+        }
+
+        if(equation[i] == ')')
+        {
+            closingBracketCounter++;
+        }
     }
 
     while(equation.length != 1)
     {
         if(equation.includes('('))
         {
-            firstOperandIndex = equation.lastIndexOf('('); 
-            secondOperandIndex = equation.indexOf(')', firstOperandIndex); 
-            partialEquation = equation.slice(firstOperandIndex + 1,secondOperandIndex);
+            operationIndex = equation.lastIndexOf('('); 
+            closingBracketIndex = equation.indexOf(')', operationIndex); 
 
-            firstOperand = partialEquation[0];
-            operation = partialEquation[1]; 
-            secondOperand = partialEquation[2]; 
+            if(isNumeric(equation[operationIndex - 1]) == true) // If we have a number before '(' and no operations, add *
+            {
+                equation.splice(operationIndex , 0, '*');
+            }
 
-            partialEquation = operate(operation,firstOperand,secondOperand).toString(); 
+            if(openingBracketCounter != closingBracketCounter) // We add ')' till we have the same number of opening and closing brackets
+            {
+                closingBracketCounter++;
+                equation.push(')');
+            }
 
-            equation.splice(firstOperandIndex, secondOperandIndex-firstOperandIndex + 1, partialEquation); 
-            
-            
+            else
+            {
+                partialEquation = equation.slice(operationIndex + 1,closingBracketIndex);
+
+                if(partialEquation.length == 1) // Condition if we have (number)
+                {
+                    equation.splice(operationIndex, closingBracketIndex-operationIndex + 1, partialEquation); 
+                }
+    
+                else
+                {
+                    firstOperand = partialEquation[0];
+                    operation = partialEquation[1]; 
+                    secondOperand = partialEquation[2]; 
+                
+                    partialEquation = operate(operation,firstOperand,secondOperand).toString(); 
+        
+                    equation.splice(operationIndex, closingBracketIndex-operationIndex + 1, partialEquation); 
+                }
+            }
         }
 
         else if(equation.includes('*')) 
         {
-            firstOperandIndex = equation.indexOf('*');
+            operationIndex = equation.indexOf('*');
 
-            firstOperand = equation[firstOperandIndex-1]; 
-            operation = equation[firstOperandIndex]; 
-            secondOperand = equation[firstOperandIndex+1]; 
+            firstOperand = equation[operationIndex-1]; 
+            operation = equation[operationIndex]; 
+            secondOperand = equation[operationIndex+1]; 
 
             partialEquation = operate(operation, firstOperand, secondOperand).toString();
 
-            equation.splice(firstOperandIndex - 1, 3, partialEquation);
+            equation.splice(operationIndex - 1, 3, partialEquation);
             
         }
 
         else if(equation.includes('/'))
         {
-            firstOperandIndex = equation.indexOf('/');
+            operationIndex = equation.indexOf('/');
 
-            firstOperand = equation[firstOperandIndex-1]; 
-            operation = equation[firstOperandIndex]; 
-            secondOperand = equation[firstOperandIndex+1]; 
+            firstOperand = equation[operationIndex-1]; 
+            operation = equation[operationIndex]; 
+            secondOperand = equation[operationIndex+1]; 
 
             partialEquation = operate(operation, firstOperand, secondOperand);
 
-            equation.splice(firstOperandIndex - 1, 3, partialEquation);
+            equation.splice(operationIndex - 1, 3, partialEquation);
             
         }
 
         else if(equation.includes('+'))
         {
-            firstOperandIndex = equation.indexOf('+'); 
+            operationIndex = equation.indexOf('+'); 
 
-            firstOperand = equation[firstOperandIndex - 1]; 
-            operation = equation[firstOperandIndex]; 
-            secondOperand = equation[firstOperandIndex + 1]; 
+            firstOperand = equation[operationIndex - 1]; 
+            operation = equation[operationIndex]; 
+            secondOperand = equation[operationIndex + 1]; 
 
             partialEquation = operate(operation, firstOperand, secondOperand).toString(); 
 
-            equation.splice(firstOperandIndex-1, 3, partialEquation);
+            equation.splice(operationIndex-1, 3, partialEquation);
             
         }
 
         else if(equation.includes('-'))
         {
-            firstOperandIndex = equation.indexOf('-'); 
+            operationIndex = equation.indexOf('-'); 
 
-            firstOperand = equation[firstOperandIndex - 1]; 
-            operation = equation[firstOperandIndex];
-            secondOperand = equation[firstOperandIndex + 1];
+            firstOperand = equation[operationIndex - 1]; 
+            operation = equation[operationIndex];
+            secondOperand = equation[operationIndex + 1];
 
             partialEquation = operate(operation, firstOperand, secondOperand).toString();
 
-            equation.splice(firstOperandIndex-1, 3, partialEquation);
+            equation.splice(operationIndex-1, 3, partialEquation);
             
         }
     }
     console.log(`equation is ${equation}`)
     return equation[0];
 }
-
-const buttons = document.querySelectorAll('button');
-
-let equation = [];
-let openingBracket = true;
-let operators = ['+', '-', '*', '/'];
-
-buttons.forEach((button => {
-    button.addEventListener('click', () => {
-
-        switch(button.value)
-        {
-            case '=':
-                if(equation.length == 0)
-                {
-                    return;
-                }
-                display.textContent = calculate(equation);           
-                return;
-
-            case 'C':
-                display.textContent = '';
-                equation = [];
-                return;
-
-            case 'Del':
-                if(equation.length == 1)
-                {
-                    display.textContent = '';
-                    equation.pop();
-                }
-                else
-                {
-                    display.textContent = display.textContent.slice(0, -1);
-                    equation.pop();
-                }
-                return;
-
-            case '()':
-                if(openingBracket)
-                {
-                    display.textContent += '(';
-                    openingBracket = false;
-                }
-                else
-                {
-                    display.textContent += ')';
-                    openingBracket = true;
-                }
-                return;
-            
-            case '.':
-                display.textContent += '.';
-                equation.push(button.value);
-
-            
-
-                
-        }
-
-        if(button.className == 'num')
-        {
-            display.textContent += button.value;
-            equation.push(button.value);
-        }
-        
-        else if(button.className == 'operator')
-        {
-            if(equation.length == 0 )
-            {
-                return;
-            }
-
-            if(operators.includes(equation[equation.length-1]) == true)
-            {
-                equation[equation.length-1] = button.value;
-
-                display.textContent = display.textContent.slice(0, -1);
-                display.textContent += button.value;
-                return;
-            }
-
-            display.textContent += button.value;
-            equation.push(button.value);
-        }
-        
-        console.log(equation)
-    })
-    
-}))
-
