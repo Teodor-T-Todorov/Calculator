@@ -25,6 +25,10 @@ buttons.forEach((button => {
                 return;
 
             case 'Del':
+                if(equation[equation.length - 1] == '(')
+                {
+                    openingBracketCounter--;
+                }
                 display.textContent = display.textContent.slice(0, -1);
                 equation.pop();
                 return;
@@ -162,29 +166,36 @@ function calculate(equation)
     let openingBracketCounter = 0;
     let closingBracketCounter = 0
 
-    for(let i = 0; i < equation.length; i++)
+    if(equation.includes('('))
     {
-        if(equation[i] == '(')
+        for(let i = 0; i < equation.length; i++)
         {
-            openingBracketCounter++;
-        }
-
-        if(equation[i] == ')')
-        {
-            closingBracketCounter++;
+            if(equation[i] == '(')
+            {
+                openingBracketCounter++;
+            }
+    
+            if(equation[i] == ')')
+            { 
+                closingBracketCounter++;
+            }
         }
     }
 
+
+
     while(equation.length != 1)
     {
+        operationIndex = equation.lastIndexOf('('); 
+        closingBracketIndex = equation.indexOf(')', operationIndex);
+
         if(equation.includes('('))
         {
-            operationIndex = equation.lastIndexOf('('); 
-            closingBracketIndex = equation.indexOf(')', operationIndex); 
-
             if(isNumeric(equation[operationIndex - 1]) == true) // If we have a number before '(' and no operations, add *
             {
                 equation.splice(operationIndex , 0, '*');
+                operationIndex = equation.lastIndexOf('('); 
+                closingBracketIndex = equation.indexOf(')', operationIndex);
             }
 
             if(openingBracketCounter != closingBracketCounter) // We add ')' till we have the same number of opening and closing brackets
@@ -196,50 +207,40 @@ function calculate(equation)
             else
             {
                 partialEquation = equation.slice(operationIndex + 1,closingBracketIndex);
-
-                if(partialEquation.length == 1) // Condition if we have (number)
-                {
-                    equation.splice(operationIndex, closingBracketIndex-operationIndex + 1, partialEquation); 
-                }
+                partialEquation = calculate(partialEquation);
     
-                else
-                {
-                    firstOperand = partialEquation[0];
-                    operation = partialEquation[1]; 
-                    secondOperand = partialEquation[2]; 
+                equation.splice(operationIndex, closingBracketIndex-operationIndex + 1, partialEquation); 
                 
-                    partialEquation = operate(operation,firstOperand,secondOperand).toString(); 
-        
-                    equation.splice(operationIndex, closingBracketIndex-operationIndex + 1, partialEquation); 
-                }
             }
         }
 
-        else if(equation.includes('*')) 
+        else if(equation.includes('*') || equation.includes('/')) 
         {
-            operationIndex = equation.indexOf('*');
+            if((equation.indexOf('/') == -1) || (equation.indexOf('*') < equation.indexOf('/')))
+            {
+                operationIndex = equation.indexOf('*');
 
-            firstOperand = equation[operationIndex-1]; 
-            operation = equation[operationIndex]; 
-            secondOperand = equation[operationIndex+1]; 
-
-            partialEquation = operate(operation, firstOperand, secondOperand).toString();
-
-            equation.splice(operationIndex - 1, 3, partialEquation);
+                firstOperand = equation[operationIndex-1]; 
+                operation = equation[operationIndex]; 
+                secondOperand = equation[operationIndex+1]; 
+    
+                partialEquation = operate(operation, firstOperand, secondOperand).toString();
+    
+                equation.splice(operationIndex - 1, 3, partialEquation);
+            }
             
-        }
+            else if ((equation.indexOf('*') != -1) || (equation.indexOf('/') < equation.indexOf('*')))
+            {
+                operationIndex = equation.indexOf('/');
 
-        else if(equation.includes('/'))
-        {
-            operationIndex = equation.indexOf('/');
+                firstOperand = equation[operationIndex-1]; 
+                operation = equation[operationIndex]; 
+                secondOperand = equation[operationIndex+1]; 
 
-            firstOperand = equation[operationIndex-1]; 
-            operation = equation[operationIndex]; 
-            secondOperand = equation[operationIndex+1]; 
+                partialEquation = operate(operation, firstOperand, secondOperand);
 
-            partialEquation = operate(operation, firstOperand, secondOperand);
-
-            equation.splice(operationIndex - 1, 3, partialEquation);
+                equation.splice(operationIndex - 1, 3, partialEquation);
+            }
             
         }
 
