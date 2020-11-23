@@ -182,8 +182,6 @@ function calculate(equation)
         }
     }
 
-
-
     while(equation.length != 1)
     {
         operationIndex = equation.lastIndexOf('('); 
