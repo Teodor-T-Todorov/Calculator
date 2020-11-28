@@ -216,7 +216,7 @@ function calculate(equation)
 
         else if(equation.includes('*') || equation.includes('/')) 
         {
-            if( (equation.indexOf('*') <= Math.abs(equation.indexOf('/'))) && (equation.indexOf('*') != -1 ))
+            if(((equation.indexOf('*') <= Math.abs(equation.indexOf('/'))) && (equation.indexOf('*') != -1 )) || equation.indexOf('/') == -1)
             {
                 operationIndex = equation.indexOf('*');
 
@@ -229,7 +229,7 @@ function calculate(equation)
                 equation.splice(operationIndex - 1, 3, partialEquation);
             }
             
-            else if( (equation.indexOf('/') <= Math.abs(equation.indexOf('*'))) && (equation.indexOf('/') != -1 ))
+            else if(((equation.indexOf('/') <= Math.abs(equation.indexOf('*'))) && (equation.indexOf('/') != -1 )) || equation.indexOf('*') == -1)
             {
                 operationIndex = equation.indexOf('/');
 
