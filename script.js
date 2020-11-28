@@ -184,11 +184,12 @@ function calculate(equation)
 
     while(equation.length != 1)
     {
-        operationIndex = equation.lastIndexOf('('); 
-        closingBracketIndex = equation.indexOf(')', operationIndex);
 
         if(equation.includes('('))
-        {
+        {    
+            operationIndex = equation.lastIndexOf('('); 
+            closingBracketIndex = equation.indexOf(')', operationIndex);
+
             if(isNumeric(equation[operationIndex - 1]) == true) // If we have a number before '(' and no operations, add *
             {
                 equation.splice(operationIndex , 0, '*');
@@ -201,6 +202,7 @@ function calculate(equation)
                 closingBracketCounter++;
                 equation.push(')');
             }
+            
 
             else
             {
@@ -214,7 +216,7 @@ function calculate(equation)
 
         else if(equation.includes('*') || equation.includes('/')) 
         {
-            if((equation.indexOf('/') == -1) || (equation.indexOf('*') < equation.indexOf('/')))
+            if( (equation.indexOf('*') <= Math.abs(equation.indexOf('/'))) && (equation.indexOf('*') != -1 ))
             {
                 operationIndex = equation.indexOf('*');
 
@@ -222,12 +224,12 @@ function calculate(equation)
                 operation = equation[operationIndex]; 
                 secondOperand = equation[operationIndex+1]; 
     
-                partialEquation = operate(operation, firstOperand, secondOperand).toString();
+                partialEquation = operate(operation, firstOperand, secondOperand);
     
                 equation.splice(operationIndex - 1, 3, partialEquation);
             }
             
-            else if ((equation.indexOf('*') != -1) || (equation.indexOf('/') < equation.indexOf('*')))
+            else if( (equation.indexOf('/') <= Math.abs(equation.indexOf('*'))) && (equation.indexOf('/') != -1 ))
             {
                 operationIndex = equation.indexOf('/');
 
@@ -250,7 +252,7 @@ function calculate(equation)
             operation = equation[operationIndex]; 
             secondOperand = equation[operationIndex + 1]; 
 
-            partialEquation = operate(operation, firstOperand, secondOperand).toString(); 
+            partialEquation = operate(operation, firstOperand, secondOperand); 
 
             equation.splice(operationIndex-1, 3, partialEquation);
             
@@ -264,7 +266,7 @@ function calculate(equation)
             operation = equation[operationIndex];
             secondOperand = equation[operationIndex + 1];
 
-            partialEquation = operate(operation, firstOperand, secondOperand).toString();
+            partialEquation = operate(operation, firstOperand, secondOperand);
 
             equation.splice(operationIndex-1, 3, partialEquation);
             
