@@ -1,4 +1,3 @@
-
 const buttons = document.querySelectorAll('button');
 
 let equation = [];
@@ -14,6 +13,11 @@ buttons.forEach((button => {
                 if(equation.length == 0)
                 {
                     return;
+                }
+
+                if(['+', '-', '*', '/'].includes(equation[equation.length - 1])) // If there is no number after operator we add 0
+                {
+                    equation.push('0');
                 }
                 display.textContent = calculate(equation);           
                 return;
@@ -34,8 +38,15 @@ buttons.forEach((button => {
                 return;
 
             case '()':
-                if(equation[equation.length - 1] != '(' && openingBracketCounter != 0)
+                if(equation[equation.length - 1] != '(' 
+                && openingBracketCounter != 0 
+                && ['+', '-', '*', '/'].includes(equation[equation.length - 1]) == false)
                 {
+                    if(['+', '-', '*', '/'].includes(equation[equation.length - 1])) // If there is no number after operator we add 0
+                    {
+                        equation.push('0');
+                    }
+                    
                     display.textContent += ')';
                     equation.push(')');
                     openingBracketCounter--;
@@ -50,6 +61,13 @@ buttons.forEach((button => {
             case '.':
                 display.textContent += '.';
                 equation.push(button.value);
+
+            case '+/-':
+              
+                equation.splice(equation.length , 0 , '(', '-', '1', ')');
+                display.textContent += '(-1)';
+                   
+
                 
         }
 
@@ -148,6 +166,10 @@ function isNumeric(num) // Check if current element is a number
 function calculate(equation)
 {
     equation = concatNumbers(equation);
+    if(equation.length == 1)
+    {
+        return equation[0];
+    }
 
     let firstOperand;
     let secondOperand;
@@ -161,6 +183,11 @@ function calculate(equation)
     if(equation.length == 1)
     {
         return equation[0];
+    }
+
+    if(equation.length == 2 && equation[0] == '-')
+    {
+        return '-1';
     }
 
     let openingBracketCounter = 0;
@@ -203,13 +230,17 @@ function calculate(equation)
                 equation.push(')');
             }
             
-
-            else
+            else // Caluclate what is inside the brackets 
             {
                 partialEquation = equation.slice(operationIndex + 1,closingBracketIndex);
                 partialEquation = calculate(partialEquation);
     
                 equation.splice(operationIndex, closingBracketIndex-operationIndex + 1, partialEquation); 
+
+                if(isNumeric(equation[operationIndex]) == true && isNumeric(equation[operationIndex + 1]) == true) // (5)2 -> 5*2
+                {
+                    equation.splice(operationIndex + 1, 0 , '*');
+                }
                 
             }
         }
