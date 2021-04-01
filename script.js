@@ -85,7 +85,8 @@ buttons.forEach((button => {
 
         if(button.className == 'num') // Adding numbers to the caluclator
         {
-            if(equation[equation.length - 1] == '-' && isNumeric(equation[equation.length - 2]) == false) // Adding negative numbers to the equation
+            if(equation[equation.length - 1] == '-' && isNumeric(equation[equation.length - 2]) == false && 
+              equation[equation.length - 2] != ')') // Adding negative numbers to the equation
             {
                 equation.splice(equation.length - 1, 1, '-' + button.value);
                 display.textContent += button.value;
