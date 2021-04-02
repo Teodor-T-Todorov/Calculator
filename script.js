@@ -4,129 +4,6 @@ let equation = [];
 let openingBracketCounter = 0;
 let operators = ['+', '-', '*', '/', '('];
 
-buttons.forEach((button => {
-    button.addEventListener('click', () => {
-
-        switch(button.value)
-        {
-            case '=':
-                if(equation.length == 0)
-                {
-                    return;
-                }
-
-                if(['+', '-', '*', '/'].includes(equation[equation.length - 1])) // If there is no number after operator we add 0
-                {
-                    equation.push('0');
-                }
-                display.textContent = calculate(equation);           
-                return;
-
-            case 'C':
-                display.textContent = '';
-                equation = [];
-                openingBracketCounter = 0;
-                return;
-
-            case 'Del':
-                if(equation[equation.length - 1] == '(')
-                {
-                    openingBracketCounter--;
-                }
-
-                else if(equation[equation.length - 1] == ')')
-                {
-                    openingBracketCounter++;
-                }
-                display.textContent = display.textContent.slice(0, -1);
-                equation.pop();
-                return;
-
-            case '()':
-                if(equation[equation.length - 1] != '(' 
-                && openingBracketCounter != 0 
-                && ['+', '-', '*', '/'].includes(equation[equation.length - 1]) == false)
-                {
-                    display.textContent += ')';
-                    equation.push(')');
-                    openingBracketCounter--;
-                    return;
-                }
-
-                display.textContent += '(';
-                equation.push('(');
-                openingBracketCounter++;
-                return;
-            
-            case '.':
-                if(equation[equation.length - 1] == '.')
-                {
-                    return;
-                }
-                display.textContent += '.';
-                equation.push(button.value);
-                return;
-
-            case '+/-':
-                if(equation[equation.length - 1] == '-' && equation[equation.length - 2] == '(')
-                {
-                    equation.splice(-1 , 2);
-                    display.textContent = display.textContent.slice(0, -2);
-                    openingBracketCounter--;
-                    return;
-                }
-
-                equation.splice(equation.length, 0 , '(', '-');
-                display.textContent += '(-';
-                openingBracketCounter++;
-                return;
-                   
-        }
-
-        if(button.className == 'num') // Adding numbers to the caluclator
-        {
-            if(equation[equation.length - 1] == '-' && isNumeric(equation[equation.length - 2]) == false && 
-              equation[equation.length - 2] != ')') // Adding negative numbers to the equation
-            {
-                equation.splice(equation.length - 1, 1, '-' + button.value);
-                display.textContent += button.value;
-            }
-            else
-            {
-                display.textContent += button.value;
-                equation.push(button.value);
-            }
-        }
-        
-        else if(button.className == 'operator')
-        {
-            if(equation.length == 0 ) // Can't start calculating with a operator
-            {
-                return;
-            }
-
-            if(operators.includes(equation[equation.length-1]) == true) // Changing the current operator to another operator
-            {
-                if(equation[equation.length - 1] == '(' || (equation[equation.length - 2] == '(' && equation[equation.length - 1] == '-'))
-                {
-                    return;
-                }
-                equation[equation.length-1] = button.value;
-
-                display.textContent = display.textContent.slice(0, -1);
-                display.textContent += button.value;
-                return;
-            }
-
-            display.textContent += button.value;
-            equation.push(button.value);
-        }
-        
-        console.log(equation)
-    })
-    
-}))
-
 function operate(operation,firstOperand, secondOperand)
 {
     let result;
@@ -159,7 +36,6 @@ function operate(operation,firstOperand, secondOperand)
     return result;
 }
 
-
 function concatNumbers(equation)
 {
     let operators = ['+', '-', '*', '/', '(', ')'];
@@ -191,6 +67,12 @@ function calculate(equation)
     if(equation.length == 1)
     {
         return equation[0];
+    }
+
+    //If we have eqaution with the form [-, number] we return -number;
+    else if(equation.length == 2 && equation[0] == '-')
+    {
+        return `-${equation[1]}`;
     }
 
     let firstOperand;
@@ -234,20 +116,23 @@ function calculate(equation)
             operationIndex = equation.lastIndexOf('('); 
             closingBracketIndex = equation.indexOf(')', operationIndex);
 
-            if(isNumeric(equation[operationIndex - 1]) == true) // If we have a number before '(' and no operations, add *
+            // If we have a number before '(' and no operations, add *
+            if(isNumeric(equation[operationIndex - 1]) == true) 
             {
                 equation.splice(operationIndex , 0, '*');
                 operationIndex = equation.lastIndexOf('('); 
                 closingBracketIndex = equation.indexOf(')', operationIndex);
             }
 
-            if(openingBracketCounter != closingBracketCounter) // We add ')' till we have the same number of opening and closing brackets
+            // We add ')' till we have the same number of opening and closing brackets
+            if(openingBracketCounter != closingBracketCounter) 
             {
                 closingBracketCounter++;
                 equation.push(')');
             }
             
-            else // Caluclate what is inside the brackets 
+            // Caluclate what is inside the brackets 
+            else 
             {
                 partialEquation = equation.slice(operationIndex + 1,closingBracketIndex);
                 partialEquation = calculate(partialEquation);
@@ -323,3 +208,142 @@ function calculate(equation)
     console.log(`equation is ${equation}`)
     return equation[0];
 }
+
+buttons.forEach((button => {
+    button.addEventListener('click', () => {
+
+        switch(button.value)
+        {
+            case '=':
+                if(equation.length == 0)
+                {
+                    return;
+                }
+
+                //***EDGE CASES***//
+
+
+                if(equation[equation.length - 2] == '(' && equation[equation.length - 1] == '-')
+                {
+                    equation[equation.length - 1] = '-1';
+                }
+
+                // If there is no number after operator we add 0
+                else if(['+', '-', '*', '/'].includes(equation[equation.length - 1])) 
+                {
+                    equation.push('0');
+                }
+
+                display.textContent = calculate(equation);           
+                return;
+
+            case 'C':
+                display.textContent = '';
+                equation = [];
+                openingBracketCounter = 0;
+                return;
+
+            case 'Del':
+                if(equation[equation.length - 1] == '(')
+                {
+                    openingBracketCounter--;
+                }
+
+                else if(equation[equation.length - 1] == ')')
+                {
+                    openingBracketCounter++;
+                }
+                display.textContent = display.textContent.slice(0, -1);
+                equation.pop();
+                return;
+
+            case '()':
+                if(equation[equation.length - 1] != '(' 
+                && openingBracketCounter != 0 
+                && ['+', '-', '*', '/'].includes(equation[equation.length - 1]) == false)
+                {
+                    display.textContent += ')';
+                    equation.push(')');
+                    openingBracketCounter--;
+                    return;
+                }
+
+                display.textContent += '(';
+                equation.push('(');
+                openingBracketCounter++;
+                return;
+            
+            case '.':
+                if(equation[equation.length - 1] == '.')
+                {
+                    return;
+                }
+                display.textContent += '.';
+                equation.push(button.value);
+                return;
+
+            case '+/-':
+                if(equation[equation.length - 1] == '-' && equation[equation.length - 2] == '(')
+                {
+                    equation.splice(-1 , 2);
+                    display.textContent = display.textContent.slice(0, -2);
+                    openingBracketCounter--;
+                    return;
+                }
+
+                equation.splice(equation.length, 0 , '(', '-');
+                display.textContent += '(-';
+                openingBracketCounter++;
+                return;
+                   
+        }
+
+        // Adding numbers to the caluclator
+        if(button.className == 'num') 
+        {
+            // Adding negative numbers to the equation
+            if(equation[equation.length - 1] == '-' 
+            && isNumeric(equation[equation.length - 2]) == false 
+            && equation[equation.length - 2] != ')') 
+            {
+                equation.splice(equation.length - 1, 1, '-' + button.value);
+                display.textContent += button.value;
+            }
+            else
+            {
+                display.textContent += button.value;
+                equation.push(button.value);
+            }
+        }
+        
+        else if(button.className == 'operator')
+        {
+            // Can't start calculating with a operator
+            if(equation.length == 0 ) 
+            {
+                return;
+            }
+
+            // Changing the current operator to another one
+            if(operators.includes(equation[equation.length-1]) == true) 
+            {
+                if(equation[equation.length - 1] == '(' || (equation[equation.length - 2] == '(' && equation[equation.length - 1] == '-'))
+                {
+                    return;
+                }
+                equation[equation.length-1] = button.value;
+
+                display.textContent = display.textContent.slice(0, -1);
+                display.textContent += button.value;
+                return;
+            }
+
+            display.textContent += button.value;
+            equation.push(button.value);
+        }
+        
+        console.log(equation)
+    })
+    
+}))
+
