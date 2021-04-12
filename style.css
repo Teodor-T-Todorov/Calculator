@@ -22,10 +22,10 @@ body{
 
 #calculator {
     display: grid;
-    grid-template-columns: repeat(4,10vh);
-    grid-template-rows: minmax(29vw,auto)repeat(5,19vw);
+    grid-template-columns: repeat(4,70px);
+    grid-template-rows: minmax(105px,auto)repeat(5,70px);
     background-color: black;
-    border: 10px solid #2f2f2f;
+    border: 5px solid #2f2f2f;
     gap: 2px;
 }
 
@@ -104,7 +104,7 @@ button[value = C]:hover, button[value = Del]:hover{
         grid-template-columns: repeat(4,100px);
         grid-template-rows: minmax(100px,auto)repeat(5,80px);
         background-color: black;
-        border: 10px solid #2f2f2f;
+        border: 7px solid #2f2f2f;
         gap: 2px;
     }
     
