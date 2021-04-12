@@ -63,7 +63,6 @@ function isNumeric(num) // Check if current element is a number
 
 function calculate(equation)
 {
-    equation = concatNumbers(equation);
     if(equation.length == 1)
     {
         return equation[0];
@@ -222,7 +221,6 @@ buttons.forEach((button => {
 
                 //***EDGE CASES***//
 
-
                 if(equation[equation.length - 2] == '(' && equation[equation.length - 1] == '-')
                 {
                     equation[equation.length - 1] = '-1';
@@ -234,6 +232,7 @@ buttons.forEach((button => {
                     equation.push('0');
                 }
 
+                equation = concatNumbers(equation);
                 display.textContent = calculate(equation);           
                 return;
 
