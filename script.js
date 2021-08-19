@@ -1,10 +1,33 @@
 const buttons = document.querySelectorAll('button');
 
-let equation = [];
-let openingBracketCounter = 0;
-let operators = ['+', '-', '*', '/', '('];
+//Helper functions
+const concatNumbers = function (equation)
+{
+    let operators = ['+', '-', '*', '/', '(', ')'];
+    let i = 0;
 
-function operate(operation,firstOperand, secondOperand)
+    while(i+1 != equation.length)
+    {
+        if((operators.includes(equation[i]) == false) && (operators.includes(equation[i+1]) == false) && (equation[i+1] != undefined))
+        {
+            equation.splice(i, 2, equation[i]+equation[i+1]);
+        }
+
+        if((operators.includes(equation[i])) == true || (operators.includes(equation[i+1]) == true ))
+        {
+            i++;
+        }
+    }
+    return equation;
+}
+
+const isNumeric = function (num) // Check if current element is a number
+{
+    return !isNaN(num);
+}
+
+//Operation and calculate functions
+const operate = function (operation,firstOperand, secondOperand)
 {
     let result;
     firstOperand = parseFloat(firstOperand);
@@ -36,36 +59,17 @@ function operate(operation,firstOperand, secondOperand)
     return result;
 }
 
-function concatNumbers(equation)
-{
-    let operators = ['+', '-', '*', '/', '(', ')'];
-    let i = 0;
-
-    while(i+1 != equation.length)
-    {
-        if((operators.includes(equation[i]) == false) && (operators.includes(equation[i+1]) == false) && (equation[i+1] != undefined))
-        {
-            equation.splice(i, 2, equation[i]+equation[i+1]);
-        }
-
-        if((operators.includes(equation[i])) == true || (operators.includes(equation[i+1]) == true ))
-        {
-            i++;
-        }
-    }
-    return equation;
-}
-
-function isNumeric(num) // Check if current element is a number
-{
-    return !isNaN(num);
-}
-
-function calculate(equation)
+const calculate = function (equation)
 {
     if(equation.length == 1)
     {
         return equation[0];
+    }
+    
+    else if(equation.length == 0)
+    {
+        alert('Invalid input');
+        return NaN;
     }
 
     //If we have eqaution with the form [-, number] we return -number;
@@ -133,7 +137,7 @@ function calculate(equation)
             // Caluclate what is inside the brackets 
             else 
             {
-                partialEquation = equation.slice(operationIndex + 1,closingBracketIndex);
+                partialEquation = equation.slice(operationIndex + 1, closingBracketIndex);
                 partialEquation = calculate(partialEquation);
     
                 equation.splice(operationIndex, closingBracketIndex-operationIndex + 1, partialEquation); 
@@ -204,9 +208,12 @@ function calculate(equation)
             
         }
     }
-    console.log(`equation is ${equation}`)
     return equation[0];
 }
+
+let equation = [];
+let openingBracketCounter = 0;
+let operators = ['+', '-', '*', '/', '('];
 
 buttons.forEach((button => {
     button.addEventListener('click', () => {
@@ -233,7 +240,8 @@ buttons.forEach((button => {
                 }
 
                 equation = concatNumbers(equation);
-                display.textContent = calculate(equation);           
+                display.textContent = calculate(equation);         
+                openingBracketCounter = 0;  
                 return;
 
             case 'C':
@@ -297,6 +305,12 @@ buttons.forEach((button => {
                    
         }
 
+        if(equation[0] == NaN || equation[0] == 'NaN' || equation[0] == 'Infinity')
+        {
+            equation.splice(0,1)
+            display.textContent = '';
+        }
+
         // Adding numbers to the caluclator
         if(button.className == 'num') 
         {
@@ -340,9 +354,5 @@ buttons.forEach((button => {
             display.textContent += button.value;
             equation.push(button.value);
         }
-        
-        console.log(equation)
     })
-    
 }))
-
