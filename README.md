@@ -1,7 +1,7 @@
 # Calculator app
 
 ### Link to the app
-https://teodor-t-todorov.github.io/Calculator/
+**https://teodor-t-todorov.github.io/Calculator/**
 
 
 ### Description
