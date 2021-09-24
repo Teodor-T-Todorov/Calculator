@@ -1,5 +1,9 @@
 # Calculator app
 
+### Link to the app
+https://teodor-t-todorov.github.io/Calculator/
+
+
 ### Description
 A calculator web app that includes all basic operations (+, -, *, /, %), brackets for priority of the operation and decimal numbers.
 The app takes the user input as an array of characters and with the help of functions it returns a single number.
